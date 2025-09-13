@@ -273,9 +273,9 @@ review_queue         -- 复习队列表
 这是一个专为高效英语学习而设计的个人项目，结合了认知科学、教育心理学和现代Web技术，致力于为学习者提供科学、高效、美观的单词学习体验。
 
 ### 📫 **联系方式**
-- **GitHub**: [@your-username](https://github.com/your-username)
-- **Email**: your.email@example.com
-- **博客**: https://your-blog.com
+- **GitHub**: [@DigitalDaDie](https://github.com/DigitalDaDie)
+- **Email**: dzdadie@163.c0m
+- **博客**: https://digitaldadie.github.io./(这个还没加内容 等下次补)
 
 ---
 
