@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 单词管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #B8A082 0%, #8B9A8C 50%, #A8B5C4 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #B8A082 0%, #A8B5C4 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+        }
+        
+        .section h2 {
+            color: #8B9A8C;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-section {
+            border-left: 4px solid #B8A082;
+        }
+        
+        .today-words-section {
+            border-left: 4px solid #8B9A8C;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .input-field:focus {
+            border-color: #B8A082;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(184, 160, 130, 0.2);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #B8A082, #A8B5C4);
+            color: white;
+            box-shadow: 0 4px 15px rgba(184, 160, 130, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(184, 160, 130, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
+        }
+        
+        .search-result, .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .search-result.found {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .search-result.not-found {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 4px solid #FFA726;
+        }
+        
+        .message.success {
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            color: #2e7d32;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .message.error {
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        
+        .word-info {
+            margin-top: 15px;
+        }
+        
+        .word-info h3 {
+            color: #2e7d32;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .word-info p {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .word-info strong {
+            color: #2e7d32;
+        }
+        
+        .manual-entry-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border-left: 4px solid #8B9A8C;
+        }
+        
+        .manual-entry-form h3 {
+            color: #8B9A8C;
+            margin-bottom: 15px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-full {
+            grid-column: 1 / -1;
+        }
+        
+        .today-words-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .word-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .word-item:last-child {
+            border-bottom: none;
+        }
+        
+        .word-item:hover {
+            background: rgba(184, 160, 130, 0.1);
+        }
+        
+        .word-details h4 {
+            color: #8B9A8C;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .word-details p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+        
+        .word-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .group-badge {
+            background: linear-gradient(135deg, #B8A082, #A8B5C4);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin: 25px;
+            color: #8B9A8C;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #B8A082;
+            text-decoration: underline;
+            transform: translateX(-5px);
+        }
+        
+        .loading {
+            text-align: center;
+            color: #8B9A8C;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .word-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .word-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 单词管理系统</h1>
+            <p>搜索单词 · 添加到今日学习 · 手动录入新词</p>
+        </div>
+        
+        <div class="content">
+            <!-- 单词搜索区域 -->
+            <div class="section search-section">
+                <h2>🔍 单词搜索</h2>
+                <div class="input-group">
+                    <label for="searchWord">请输入要搜索的单词：</label>
+                    <input type="text" id="searchWord" class="input-field" placeholder="例如：hello" onkeypress="handleSearchKeyPress(event)">
+                </div>
+                <button class="btn btn-primary" onclick="searchWord()">搜索单词</button>
+                
+                <div id="searchResult"></div>
+                
+                <!-- 手动录入表单 -->
+                <div id="manualEntryForm" class="manual-entry-form">
+                    <h3>📝 手动录入新单词</h3>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="newWord">单词 *</label>
+                            <input type="text" id="newWord" class="input-field" placeholder="例如：hello">
+                        </div>
+                        <div class="input-group">
+                            <label for="newPhonetic">音标</label>
+                            <input type="text" id="newPhonetic" class="input-field" placeholder="例如：həˈloʊ">
+                        </div>
+                    </div>
+                    <div class="input-group form-full">
+                        <label for="newTranslation">翻译 *</label>
+                        <input type="text" id="newTranslation" class="input-field" placeholder="例如：你好；问候">
+                    </div>
+                    <div class="input-group form-full">
+                        <label for="newExample">例句</label>
+                        <input type="text" id="newExample" class="input-field" placeholder="例如：Hello, how are you?">
+                    </div>
+                    <button class="btn btn-success" onclick="createNewWord()">创建并添加到今日学习</button>
+                </div>
+            </div>
+            
+            <!-- 今日单词管理区域 -->
+            <div class="section today-words-section">
+                <h2>📅 今日学习单词管理</h2>
+                <p style="margin-bottom: 20px; color: #666;">管理今天要学习的单词，可以移除还未开始学习的单词</p>
+                <button class="btn btn-primary" onclick="loadTodayWords()">刷新今日单词列表</button>
+                
+                <div id="todayWordsList" class="today-words-list" style="margin-top: 20px;">
+                    <div class="loading">点击上方按钮加载今日单词列表</div>
+                </div>
+            </div>
+            
+            <div id="messageArea"></div>
+        </div>
+        
+        <a href="/" class="back-link">🏠 返回主页</a>
+    </div>
+    
+    <script>
+        let currentSearchWord = '';
+        
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchWord();
+            }
+        }
+        
+        async function searchWord() {
+            const word = document.getElementById('searchWord').value.trim();
+            if (!word) {
+                showMessage('请输入要搜索的单词', 'error');
+                return;
+            }
+            
+            currentSearchWord = word;
+            const resultDiv = document.getElementById('searchResult');
+            resultDiv.innerHTML = '<div class="loading">搜索中...</div>';
+            
+            try {
+                const response = await fetch('/api/search_word', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ word: word })
+                });
+                
+                const result = await response.json();
+                
+                if (result.found) {
+                    showFoundWord(result.word);
+                } else {
+                    showWordNotFound();
+                }
+            } catch (error) {
+                console.error('搜索失败:', error);
+                resultDiv.innerHTML = '<div class="message error">搜索失败，请重试</div>';
+            }
+        }
+        
+        function showFoundWord(word) {
+            const resultDiv = document.getElementById('searchResult');
+            resultDiv.innerHTML = `
+                <div class="search-result found">
+                    <div class="word-info">
+                        <h3>${word.word}</h3>
+                        ${word.phonetic ? `<p><strong>音标：</strong>/${word.phonetic}/</p>` : ''}
+                        <p><strong>翻译：</strong>${word.translation}</p>
+                        ${word.example_sentence ? `<p><strong>例句：</strong>${word.example_sentence}</p>` : ''}
+                        <p><strong>状态：</strong>${getStatusText(word.status)}</p>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" onclick="addWordToToday(${word.id})">
+                            添加到今日学习
+                        </button>
+                    </div>
+                </div>
+            `;
+            hideManualEntryForm();
+        }
+        
+        function showWordNotFound() {
+            const resultDiv = document.getElementById('searchResult');
+            resultDiv.innerHTML = `
+                <div class="search-result not-found">
+                    <p><strong>未找到单词 "${currentSearchWord}"</strong></p>
+                    <p>您可以手动录入这个新单词到词库中</p>
+                    <button class="btn btn-primary" onclick="showManualEntryForm()">
+                        手动录入新单词
+                    </button>
+                </div>
+            `;
+        }
+        
+        function showManualEntryForm() {
+            const form = document.getElementById('manualEntryForm');
+            form.style.display = 'block';
+            document.getElementById('newWord').value = currentSearchWord;
+            document.getElementById('newWord').focus();
+        }
+        
+        function hideManualEntryForm() {
+            const form = document.getElementById('manualEntryForm');
+            form.style.display = 'none';
+            // 清空表单
+            document.getElementById('newWord').value = '';
+            document.getElementById('newPhonetic').value = '';
+            document.getElementById('newTranslation').value = '';
+            document.getElementById('newExample').value = '';
+        }
+        
+        async function addWordToToday(wordId) {
+            try {
+                const response = await fetch('/api/add_word_to_today', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ word_id: wordId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    loadTodayWords(); // 刷新今日单词列表
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('添加失败:', error);
+                showMessage('添加失败，请重试', 'error');
+            }
+        }
+        
+        async function createNewWord() {
+            const word = document.getElementById('newWord').value.trim();
+            const phonetic = document.getElementById('newPhonetic').value.trim();
+            const translation = document.getElementById('newTranslation').value.trim();
+            const example = document.getElementById('newExample').value.trim();
+            
+            if (!word || !translation) {
+                showMessage('单词和翻译为必填项', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/create_and_add_word', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        word: word,
+                        phonetic: phonetic,
+                        translation: translation,
+                        example_sentence: example
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    hideManualEntryForm();
+                    document.getElementById('searchWord').value = '';
+                    document.getElementById('searchResult').innerHTML = '';
+                    loadTodayWords(); // 刷新今日单词列表
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('创建失败:', error);
+                showMessage('创建失败，请重试', 'error');
+            }
+        }
+        
+        async function loadTodayWords() {
+            const listDiv = document.getElementById('todayWordsList');
+            listDiv.innerHTML = '<div class="loading">加载中...</div>';
+            
+            try {
+                const response = await fetch('/api/get_today_words');
+                const words = await response.json();
+                
+                if (words.length === 0) {
+                    listDiv.innerHTML = '<div class="loading">今日暂无学习单词</div>';
+                    return;
+                }
+                
+                let html = '';
+                words.forEach(word => {
+                    const canRemove = word.can_remove;
+                    const statusText = canRemove ? '可移除' : '已开始学习';
+                    
+                    html += `
+                        <div class="word-item">
+                            <div class="word-details">
+                                <h4>${word.word} <span class="group-badge">第${word.group_number}组</span></h4>
+                                ${word.phonetic ? `<p><strong>音标：</strong>/${word.phonetic}/</p>` : ''}
+                                <p><strong>翻译：</strong>${word.translation}</p>
+                                <p><strong>状态：</strong>${statusText}</p>
+                            </div>
+                            <div class="word-actions">
+                                ${canRemove ? `
+                                    <button class="btn btn-danger btn-sm" onclick="removeWordFromToday(${word.daily_pool_id}, '${word.word}')">
+                                        移除
+                                    </button>
+                                ` : `
+                                    <span style="color: #999; font-size: 0.9rem;">不可移除</span>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                listDiv.innerHTML = html;
+                
+            } catch (error) {
+                console.error('加载今日单词失败:', error);
+                listDiv.innerHTML = '<div class="message error">加载失败，请重试</div>';
+            }
+        }
+        
+        async function removeWordFromToday(dailyPoolId, wordText) {
+            if (!confirm(`确定要从今日学习中移除单词 "${wordText}" 吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/remove_word_from_today', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ daily_pool_id: dailyPoolId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage(result.message, 'success');
+                    loadTodayWords(); // 刷新列表
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('移除失败:', error);
+                showMessage('移除失败，请重试', 'error');
+            }
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'unlearned': '未学习',
+                'learning': '学习中',
+                'learned': '已学会'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="message ${type}">${message}</div>`;
+            
+            // 3秒后自动清除消息
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 3000);
+        }
+        
+        // 页面加载时自动加载今日单词
+        window.addEventListener('load', () => {
+            loadTodayWords();
+        });
+    </script>
+</body>
+</html>

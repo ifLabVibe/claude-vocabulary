@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 智能自动学习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M20 20.5V18H18v2.5h-2.5V22H18v2.5h2V22h2.5v-1.5H20zM0 38.5V36h2.5v2.5H5V41H2.5v2.5H0V41h-2.5v-2.5H0zM0 6.5V4h2.5v2.5H5V9H2.5v2.5H0V9h-2.5V6.5H0z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.1;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .current-stage {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stage-description {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .flow-progress {
+            background: linear-gradient(135deg, #F5F0E8 0%, #EDE7DC 100%);
+            padding: 25px;
+            margin: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(139, 154, 140, 0.2);
+            box-shadow: 0 8px 25px rgba(139, 154, 140, 0.1);
+        }
+        
+        .progress-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .step {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 12px 8px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .step.completed {
+            background: linear-gradient(135deg, #8B9A8C, #7A8A7D);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(139, 154, 140, 0.3);
+        }
+        
+        .step.current {
+            background: linear-gradient(135deg, #D4C4A8, #C2B59A);
+            color: white;
+            font-weight: 700;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(212, 196, 168, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
+        }
+        
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.3);
+            height: 8px;
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.8s ease;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .word-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 40px 30px;
+            border-radius: 20px;
+            margin: 30px 20px;
+            text-align: center;
+            border: 2px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .word-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 175, 80, 0.1) 0%, transparent 70%);
+            animation: wordGlow 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes wordGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        
+        .word-display {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #2e7d32;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .phonetic {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .example-sentence {
+            font-size: 1rem;
+            color: #555;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-radius: 15px;
+            border-left: 4px solid #4CAF50;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hint-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hint-btn:hover {
+            background: #1976D2;
+        }
+
+        .example-hint-section {
+            margin-top: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .input-section {
+            text-align: center;
+            margin: 30px 20px;
+        }
+        
+        .answer-input {
+            font-size: 1.2rem;
+            padding: 18px 25px;
+            border: 3px solid #e0e0e0;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .answer-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+            transform: scale(1.02);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .answer-section {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 20px;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.1);
+        }
+        
+        .your-answer, .correct-answer {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding: 15px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .correct-answer {
+            color: #2e7d32;
+        }
+        
+        .judgment-section {
+            text-align: center;
+            margin-top: 25px;
+        }
+        
+        .judgment-btn {
+            padding: 15px 30px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .mastered-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .mastered-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+        
+        .not-mastered-btn {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+        
+        .not-mastered-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.3);
+        }
+        
+        .phase-completion {
+            text-align: center;
+            padding: 50px 30px;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid #4CAF50;
+            border-radius: 25px;
+            margin: 30px 20px;
+            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.2);
+        }
+        
+        .phase-completion h3 {
+            color: #2e7d32;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .next-phase-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        }
+        
+        .next-phase-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin: 20px;
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #2e7d32;
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            .word-display {
+                font-size: 2.5rem;
+            }
+            
+            .progress-steps {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 8px;
+            }
+            
+            .step {
+                font-size: 0.75rem;
+                padding: 10px 6px;
+            }
+            
+            .judgment-btn {
+                display: block;
+                margin: 10px auto;
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 智能自动学习</h1>
+            <div class="current-stage" id="currentStage">正在加载...</div>
+            <div class="stage-description" id="stageDescription"></div>
+        </div>
+        
+        <div class="flow-progress">
+            <div class="progress-steps" id="progressSteps">
+                <!-- 进度步骤将在这里动态生成 -->
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <p id="progressText" style="text-align: center; margin-top: 15px; font-weight: 600; color: #2e7d32;">正在加载单词...</p>
+        </div>
+        
+        <div id="learningContent">
+            <!-- 学习内容将在这里动态加载 -->
+        </div>
+        
+        <a href="/" class="back-link">🏠 返回主页</a>
+    </div>
+    
+    <script>
+        let currentProgress = {};
+        let words = [];
+        let currentIndex = 0;
+        let currentRound = 1;
+        let answeredWords = new Set();
+        let roundErrors = [];
+        
+        async function loadCurrentProgress() {
+            try {
+                const response = await fetch('/api/learning_progress');
+                currentProgress = await response.json();
+                
+                document.getElementById('currentStage').textContent = currentProgress.stage_description;
+                updateProgressSteps();
+                loadCurrentWords();
+            } catch (error) {
+                console.error('加载进度失败:', error);
+                document.getElementById('learningContent').innerHTML = 
+                    '<p style="text-align: center; color: red;">加载进度失败，请刷新重试</p>';
+            }
+        }
+        
+        function updateProgressSteps() {
+            const steps = [
+                '第1组主学习(3轮)',
+                '第2组主学习(3轮)', 
+                '交叉复习(1-2组)',
+                '第3组主学习(3轮)',
+                '交叉复习(2-3组)',
+                '大乱斗模式'
+            ];
+            
+            const stageMapping = {
+                'group1_main': 0,
+                'group2_main': 1,
+                'cross_review_1_2': 2,
+                'group3_main': 3,
+                'cross_review_2_3': 4,
+                'final_battle': 5
+            };
+            
+            const currentStageIndex = stageMapping[currentProgress.current_stage] || 0;
+            const stepsContainer = document.getElementById('progressSteps');
+            
+            stepsContainer.innerHTML = steps.map((step, index) => {
+                let className = 'step';
+                if (index < currentStageIndex) {
+                    className += ' completed';
+                } else if (index === currentStageIndex) {
+                    className += ' current';
+                }
+                return `<div class="${className}">${step}</div>`;
+            }).join('');
+            
+            // 更新进度条
+            const progressPercent = ((currentStageIndex + 1) / steps.length) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+        }
+        
+        async function loadCurrentWords() {
+            try {
+                const response = await fetch(`/api/get_words/${currentProgress.current_dimension}/${currentProgress.current_group}`);
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                words = data;
+                if (words.length === 0) {
+                    showPhaseCompletion();
+                    return;
+                }
+                
+                showCurrentWord();
+                updateLearningProgress();
+            } catch (error) {
+                console.error('加载单词失败:', error);
+                document.getElementById('learningContent').innerHTML = 
+                    '<p style="text-align: center; color: red;">加载单词失败，请刷新重试</p>';
+            }
+        }
+        
+        function showCurrentWord() {
+            if (currentIndex >= words.length) {
+                checkRoundCompletion();
+                return;
+            }
+            
+            const word = words[currentIndex];
+            const isRecognition = currentProgress.current_dimension === 'recognition';
+            
+            const content = `
+                <div class="word-card">
+                    <div class="word-display">
+                        ${isRecognition ? word.word : word.translation}
+                    </div>
+                    ${isRecognition && word.phonetic ? `<div class="phonetic">/${word.phonetic}/</div>` : ''}
+                    ${word.example_sentence && isRecognition ?
+                        '<div class="example-hint-section">' +
+                            '<button class="hint-btn" onclick="toggleExampleSentence()" id="hintBtn">' +
+                                '💡 查看例句' +
+                            '</button>' +
+                            '<div class="example-sentence" id="exampleSentence" style="display: none;">' +
+                                '<strong>例句：</strong>' + word.example_sentence +
+                            '</div>' +
+                        '</div>' : ''}
+                </div>
+
+                <div class="input-section">
+                    <input type="text" class="answer-input" id="answerInput"
+                           placeholder="${isRecognition ? '请输入中文翻译' : '请输入英文单词'}"
+                           onkeypress="handleKeyPress(event)">
+                    <br>
+                    <button class="submit-btn" onclick="submitAnswer()">提交答案</button>
+                </div>
+            `;
+            
+            document.getElementById('learningContent').innerHTML = content;
+            document.getElementById('answerInput').focus();
+        }
+
+        function toggleExampleSentence() {
+            try {
+                console.log('toggleExampleSentence 函数被调用');
+
+                const hintBtn = document.getElementById('hintBtn');
+                const exampleSentence = document.getElementById('exampleSentence');
+
+                console.log('找到的元素：', { hintBtn, exampleSentence });
+
+                if (hintBtn && exampleSentence) {
+                    // 显示例句
+                    exampleSentence.style.display = 'block';
+                    // 隐藏按钮
+                    hintBtn.style.display = 'none';
+                    console.log('操作完成：例句已显示，按钮已隐藏');
+                } else {
+                    console.error('找不到必要的元素');
+                    console.log('hintBtn:', hintBtn);
+                    console.log('exampleSentence:', exampleSentence);
+                }
+            } catch (error) {
+                console.error('toggleExampleSentence 执行出错：', error);
+            }
+        }
+
+        async function skipCurrentWord() {
+            const word = words[currentIndex];
+            
+            if (confirm(`确定要跳过单词"${word.word}"吗？这会从当前维度的学习中移除该单词。`)) {
+                try {
+                    const response = await fetch('/api/skip_word', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            word_id: word.id,
+                            dimension: currentProgress.current_dimension
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (!result.success) {
+                        throw new Error(result.error || '跳过失败');
+                    }
+                    
+                    // 从当前单词列表中移除该单词
+                    words.splice(currentIndex, 1);
+                    
+                    // 调整当前索引
+                    if (currentIndex >= words.length) {
+                        currentIndex = 0;
+                    }
+                    
+                    // 显示下一个单词或检查完成状态
+                    if (words.length === 0) {
+                        showPhaseCompletion();
+                    } else {
+                        showCurrentWord();
+                    }
+                    
+                    updateLearningProgress();
+                    
+                } catch (error) {
+                    console.error('跳过单词失败:', error);
+                    alert('跳过失败，请重试');
+                }
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                submitAnswer();
+            }
+        }
+        
+        async function submitAnswer() {
+            const input = document.getElementById('answerInput');
+            const userAnswer = input.value.trim();
+            
+            if (!userAnswer) {
+                alert('请输入答案');
+                return;
+            }
+            
+            const word = words[currentIndex];
+            const correctAnswer = currentProgress.current_dimension === 'recognition' ? 
+                word.translation : word.word;
+            
+            input.disabled = true;
+            showAnswerComparison(userAnswer, correctAnswer, word);
+        }
+        
+        function showAnswerComparison(userAnswer, correctAnswer, word) {
+            const isRecognition = currentProgress.current_dimension === 'recognition';
+            let machineSuggestion = '';
+            
+            if (!isRecognition) {
+                // 完全匹配才算正确，不允许任何容错
+                if (userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim()) {
+                    machineSuggestion = '<div class="machine-suggestion">✅ 机器建议：拼写完全正确</div>';
+                } else {
+                    machineSuggestion = '<div class="machine-suggestion">❌ 机器建议：拼写有误，请仔细对比</div>';
+                }
+            }
+            
+            const content = `
+                <div class="word-card">
+                    <div class="word-display">
+                        ${isRecognition ? word.word : word.translation}
+                    </div>
+                    ${isRecognition && word.phonetic ? `<div class="phonetic">/${word.phonetic}/</div>` : ''}
+                    ${word.example_sentence ? `<div class="example-sentence"><strong>例句：</strong>${word.example_sentence}</div>` : ''}
+                </div>
+                
+                <div class="answer-section">
+                    <div class="your-answer">你的答案：${userAnswer}</div>
+                    <div class="correct-answer">正确答案：${correctAnswer}</div>
+                    ${machineSuggestion}
+                    
+                    <div class="judgment-section">
+                        <p><strong>请判断你是否已经掌握这个单词：</strong></p>
+                        <button class="judgment-btn mastered-btn" onclick="markWord(true)">我已掌握</button>
+                        <button class="judgment-btn not-mastered-btn" onclick="markWord(false)">我未掌握</button>
+                        <button class="judgment-btn" onclick="skipCurrentWord()" 
+                                style="background: #FF9800; margin-left: 20px;">
+                            我会这个（跳过）
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('learningContent').innerHTML = content;
+        }
+        
+        function calculateSimilarity(str1, str2) {
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+            
+            if (longer.length === 0) return 1.0;
+            
+            const editDistance = levenshteinDistance(longer, shorter);
+            return (longer.length - editDistance) / longer.length;
+        }
+        
+        function levenshteinDistance(str1, str2) {
+            const matrix = [];
+            
+            for (let i = 0; i <= str2.length; i++) {
+                matrix[i] = [i];
+            }
+            
+            for (let j = 0; j <= str1.length; j++) {
+                matrix[0][j] = j;
+            }
+            
+            for (let i = 1; i <= str2.length; i++) {
+                for (let j = 1; j <= str1.length; j++) {
+                    if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            
+            return matrix[str2.length][str1.length];
+        }
+        
+        async function markWord(mastered) {
+            const word = words[currentIndex];
+            
+            try {
+                const response = await fetch('/api/mark_word', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        word_id: word.id,
+                        dimension: currentProgress.current_dimension,
+                        mastered: mastered
+                    })
+                });
+                
+                const result = await response.json();
+                if (!result.success) {
+                    throw new Error('标记失败');
+                }
+                
+                answeredWords.add(currentIndex);
+                if (!mastered) {
+                    roundErrors.push(currentIndex);
+                }
+                
+                setTimeout(() => {
+                    nextWord();
+                }, 500);
+                
+            } catch (error) {
+                console.error('标记单词状态失败:', error);
+                alert('保存失败，请重试');
+            }
+        }
+        
+        function nextWord() {
+            currentIndex++;
+            showCurrentWord();
+            updateLearningProgress();
+        }
+        
+        function checkRoundCompletion() {
+            if (roundErrors.length === 0) {
+                // 本轮全部正确，显示阶段完成
+                showPhaseCompletion();
+            } else {
+                // 有错误，需要重新开始
+                startNewRound();
+            }
+        }
+        
+        function startNewRound() {
+            currentRound++;
+            const errorWords = roundErrors.map(index => words[index]);
+            
+            // 打乱错误单词顺序
+            for (let i = errorWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [errorWords[i], errorWords[j]] = [errorWords[j], errorWords[i]];
+            }
+            
+            words = errorWords;
+            currentIndex = 0;
+            answeredWords.clear();
+            roundErrors = [];
+            
+            alert(`第${currentRound}轮开始！需要重新学习${words.length}个未掌握的单词`);
+            showCurrentWord();
+            updateLearningProgress();
+        }
+        
+        function updateLearningProgress() {
+            const totalWords = words.length;
+            const completedWords = answeredWords.size;
+            const progressPercent = totalWords > 0 ? (completedWords / totalWords) * 100 : 0;
+            
+            document.getElementById('progressText').textContent = 
+                `${currentProgress.stage_description} - 第${currentRound}轮 - 进度：${completedWords}/${totalWords} (${Math.round(progressPercent)}%)`;
+        }
+        
+        function showPhaseCompletion() {
+            const content = `
+                <div class="phase-completion">
+                    <h3>🎉 当前阶段完成！</h3>
+                    <p>${currentProgress.stage_description} 已经完成</p>
+                    <button class="next-phase-btn" onclick="moveToNextPhase()">
+                        进入下一个学习阶段
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('learningContent').innerHTML = content;
+        }
+        
+        async function moveToNextPhase() {
+            try {
+                const response = await fetch('/api/complete_current_phase', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.is_completed) {
+                    // 所有学习完成
+                    document.getElementById('learningContent').innerHTML = `
+                        <div class="phase-completion">
+                            <h2>🎉🎉🎉 恭喜！今日学习全部完成！</h2>
+                            <p>您已经完成了所有的学习流程，包括：</p>
+                            <ul>
+                                <li>第1组单词3轮学习</li>
+                                <li>第2组单词3轮学习</li>
+                                <li>第1-2组交叉复习</li>
+                                <li>第3组单词3轮学习</li>
+                                <li>第2-3组交叉复习</li>
+                            </ul>
+                            <button class="next-phase-btn" onclick="window.location.href='/'">
+                                返回主页
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    // 进入下一阶段
+                    currentProgress = result;
+                    currentIndex = 0;
+                    answeredWords.clear();
+                    roundErrors = [];
+                    currentRound = 1;
+                    
+                    document.getElementById('currentStage').textContent = result.stage_description;
+                    updateProgressSteps();
+                    loadCurrentWords();
+                }
+            } catch (error) {
+                console.error('进入下一阶段失败:', error);
+                alert('进入下一阶段失败，请刷新重试');
+            }
+        }
+        
+        // 页面加载时开始
+        loadCurrentProgress();
+    </script>
+</body>
+</html>

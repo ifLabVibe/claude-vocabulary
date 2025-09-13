@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 今日新词学习</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #B8A082 0%, #8B9A8C 50%, #A8B5C4 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* 莫兰蒂风格的背景纹理 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l4-4h2l-6 6V4zm0 4l8-8h2L40 10V8zm0 4L52 0h2L40 14v-2zm0 4L56 0h2L40 18v-2zm0 4L60 0h2L40 22v-2zm0 4L64 0h2L40 26v-2zm0 4L68 0h2L40 30v-2zm0 4L72 0h2L40 34v-2zm0 4L76 0h2L40 38v-2zm0 4L80 0v2L42 40h-2zm4 0L80 4v2L46 40h-2zm4 0L80 8v2L50 40h-2zm4 0L80 12v2L54 40h-2zm4 0L80 16v2L58 40h-2zm4 0L80 20v2L62 40h-2zm4 0L80 24v2L66 40h-2zm4 0L80 28v2L70 40h-2zm4 0L80 32v2L74 40h-2zm4 0L80 36v2L78 40h-2z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #B8A082 0%, #8B9A8C 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 60%);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .main-content {
+            padding: 40px 30px;
+        }
+        
+        .progress-info {
+            background: linear-gradient(135deg, #F5F0E8 0%, #EDE7DC 100%);
+            padding: 25px;
+            margin-bottom: 35px;
+            border-radius: 20px;
+            border: 1px solid rgba(184, 160, 130, 0.2);
+            box-shadow: 0 8px 25px rgba(184, 160, 130, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-info::before {
+            content: '📈';
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 4rem;
+            opacity: 0.1;
+        }
+        
+        .progress-info strong {
+            color: #8B6F47;
+            font-weight: 600;
+        }
+        
+        .selection-section {
+            margin-bottom: 35px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #8B6F47;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .group-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .group-button {
+            background: linear-gradient(135deg, #A8B5C4 0%, #9AACB8 100%);
+            color: white;
+            padding: 25px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: 3px solid transparent;
+            box-shadow: 0 8px 25px rgba(168, 181, 196, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .group-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .group-button:hover::before {
+            left: 100%;
+        }
+        
+        .group-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(168, 181, 196, 0.3);
+        }
+        
+        .group-button.active {
+            border-color: #8B9A8C;
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(139, 154, 140, 0.3);
+        }
+        
+        .group-button.completed {
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            border-color: #8B9A8C;
+        }
+        
+        .dimension-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .dimension-button {
+            background: linear-gradient(135deg, #D4C4A8 0%, #C2B59A 100%);
+            color: #8B6F47;
+            padding: 20px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(212, 196, 168, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dimension-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+        
+        .dimension-button:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+        
+        .dimension-button:hover:not(.disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 196, 168, 0.3);
+        }
+        
+        .dimension-button.active {
+            border-color: #8B9A8C;
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139, 154, 140, 0.3);
+        }
+        
+        .dimension-button.completed {
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            color: white;
+            border-color: #8B9A8C;
+        }
+        
+        .dimension-button.disabled {
+            background: #E6E0D6;
+            color: #B8B0A5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .dimension-button.disabled:hover {
+            transform: none;
+            box-shadow: 0 6px 20px rgba(212, 196, 168, 0.2);
+        }
+        
+        .start-button {
+            display: block;
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            color: white;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 30px auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(139, 154, 140, 0.2);
+            position: relative;
+            overflow: hidden;
+            min-width: 280px;
+        }
+        
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .start-button:hover::before {
+            left: 100%;
+        }
+        
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(139, 154, 140, 0.3);
+        }
+        
+        .start-button:disabled {
+            background: #E6E0D6;
+            color: #B8B0A5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin: 25px;
+            color: #8B9A8C;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #7A8A7D;
+            text-decoration: underline;
+            transform: translateX(-5px);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 30px 20px;
+            }
+            
+            .group-selector {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .dimension-selector {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .group-button, .dimension-button {
+                padding: 18px 15px;
+            }
+        }
+        
+        /* 选择状态动画 */
+        @keyframes selectPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .group-button.active, .dimension-button.active {
+            animation: selectPulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 今日新词学习</h1>
+            <p>共60个单词，分为3组，每组20个单词</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="progress-info" id="progressInfo">
+                正在加载学习进度...
+            </div>
+            
+            <div class="selection-section">
+                <div class="section-title">📚 选择学习组别</div>
+                <div class="group-selector">
+                    <div class="group-button" id="group1" onclick="selectGroup(1)">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">📖</div>
+                        第一组
+                        <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">单词 1-20</div>
+                    </div>
+                    <div class="group-button" id="group2" onclick="selectGroup(2)">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">📘</div>
+                        第二组
+                        <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">单词 21-40</div>
+                    </div>
+                    <div class="group-button" id="group3" onclick="selectGroup(3)">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">📙</div>
+                        第三组
+                        <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 5px;">单词 41-60</div>
+                    </div>
+                </div>
+                
+                <div class="section-title">🎯 选择学习维度</div>
+                <div class="dimension-selector" id="dimensionSelector">
+                    <div class="dimension-button" id="recognition" onclick="selectDimension('recognition')">
+                        <div style="font-size: 1.3rem; margin-bottom: 5px;">👁️</div>
+                        认（英译汉）
+                    </div>
+                    <div class="dimension-button" id="spelling" onclick="selectDimension('spelling')">
+                        <div style="font-size: 1.3rem; margin-bottom: 5px;">✍️</div>
+                        写（汉译英）
+                    </div>
+                    <div class="dimension-button" id="listening" onclick="selectDimension('listening')">
+                        <div style="font-size: 1.3rem; margin-bottom: 5px;">👂</div>
+                        听（听音写义）
+                    </div>
+                    <div class="dimension-button" id="speaking" onclick="selectDimension('speaking')">
+                        <div style="font-size: 1.3rem; margin-bottom: 5px;">🗣️</div>
+                        说（看译发音）
+                    </div>
+                </div>
+            </div>
+            
+            <button class="start-button" id="startButton" onclick="startLearning()" disabled>
+                选择组别和维度开始学习
+            </button>
+        </div>
+        
+        <a href="/" class="back-link">🏠 返回主页</a>
+    </div>
+    
+    <script>
+        let selectedGroup = null;
+        let selectedDimension = null;
+        let progress = {};
+        
+        async function loadProgress() {
+            try {
+                const response = await fetch('/api/learning_progress');
+                progress = await response.json();
+                
+                updateUI();
+            } catch (error) {
+                console.error('加载进度失败:', error);
+                document.getElementById('progressInfo').textContent = '加载进度失败';
+            }
+        }
+        
+        function updateUI() {
+            const progressInfo = document.getElementById('progressInfo');
+            
+            if (progress.current_stage) {
+                progressInfo.innerHTML = `
+                    <strong>当前进度：</strong>${progress.current_stage}<br>
+                    <strong>当前组别：</strong>第${progress.current_group}组<br>
+                    <strong>当前维度：</strong>${getDimensionName(progress.current_dimension)}
+                `;
+            } else {
+                progressInfo.textContent = '请选择第一组开始学习';
+            }
+        }
+        
+        function getDimensionName(dimension) {
+            const names = {
+                'recognition': '认（英译汉）',
+                'spelling': '写（汉译英）',
+                'listening': '听（听音写义）',
+                'speaking': '说（看译发音）'
+            };
+            return names[dimension] || dimension;
+        }
+        
+        function selectGroup(groupNum) {
+            selectedGroup = groupNum;
+            
+            // 更新组别按钮样式
+            document.querySelectorAll('.group-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`group${groupNum}`).classList.add('active');
+            
+            updateStartButton();
+        }
+        
+        function selectDimension(dimension) {
+            // 所有维度都已开发完成
+            
+            selectedDimension = dimension;
+            
+            // 更新维度按钮样式
+            document.querySelectorAll('.dimension-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(dimension).classList.add('active');
+            
+            updateStartButton();
+        }
+        
+        function updateStartButton() {
+            const button = document.getElementById('startButton');
+            
+            if (selectedGroup && selectedDimension) {
+                button.disabled = false;
+                button.textContent = `开始第${selectedGroup}组${getDimensionName(selectedDimension)}学习`;
+            } else {
+                button.disabled = true;
+                button.textContent = '选择组别和维度开始学习';
+            }
+        }
+        
+        function startLearning() {
+            if (selectedGroup && selectedDimension) {
+                window.location.href = `/learning/${selectedDimension}/${selectedGroup}`;
+            }
+        }
+        
+        // 页面加载时获取进度
+        loadProgress();
+    </script>
+</body>
+</html>

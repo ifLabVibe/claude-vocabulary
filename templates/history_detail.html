@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ date }} - 📚 学习记录详情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #8B9A8C 0%, #A8B5C4 50%, #B8A082 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* 背景装饰 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M40 40c0-11 9-20 20-20s20 9 20 20-9 20-20 20-20-9-20-20zM0 0c0-5.5 4.5-10 10-10s10 4.5 10 10-4.5 10-10 10S0 5.5 0 0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: backgroundShift 30s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(80px, 80px); }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 25px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B9A8C 0%, #A8B5C4 100%);
+            color: white;
+            padding: 45px 35px 35px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 70%);
+        }
+
+        .date-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-content {
+            padding: 40px 35px;
+        }
+
+        .progress-info {
+            background: linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%);
+            padding: 25px 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 1px solid rgba(139, 154, 140, 0.2);
+            box-shadow: 0 10px 30px rgba(139, 154, 140, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-info::before {
+            content: '📈';
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 4rem;
+            opacity: 0.1;
+        }
+
+        .progress-info strong {
+            color: #2E7D32;
+            font-size: 1.1rem;
+        }
+
+        .progress-info br + text {
+            color: #4A5D4A;
+            line-height: 1.6;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 35px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(168, 181, 196, 0.1) 0%, rgba(139, 154, 140, 0.1) 100%);
+            padding: 30px 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(168, 181, 196, 0.2);
+            box-shadow: 0 8px 25px rgba(168, 181, 196, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 181, 196, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(168, 181, 196, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #8B6F47;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            color: #8B6F47;
+            font-size: 1rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .group-section {
+            margin: 35px 0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.05);
+            border: 1px solid rgba(139, 154, 140, 0.1);
+        }
+
+        .group-header {
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            color: white;
+            padding: 20px 25px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .group-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: headerShine 3s infinite;
+        }
+
+        @keyframes headerShine {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .words-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+        }
+
+        .expand-btn {
+            background: linear-gradient(135deg, #A8B5C4, #9AACB8);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(168, 181, 196, 0.3);
+        }
+
+        .expand-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(168, 181, 196, 0.4);
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .word-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,249,250,0.95) 100%);
+            border: 2px solid rgba(139, 154, 140, 0.1);
+            border-radius: 18px;
+            padding: 25px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .word-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 154, 140, 0.05), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .word-item:hover::before {
+            left: 100%;
+        }
+
+        .word-item:hover {
+            border-color: #8B9A8C;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 154, 140, 0.15);
+        }
+
+        .word-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #2E7D32;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .phonetic {
+            font-size: 1rem;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .translation {
+            font-size: 1.1rem;
+            color: #8B6F47;
+            font-weight: 600;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .example {
+            font-size: 0.95rem;
+            color: #555;
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #2196F3;
+            line-height: 1.5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .collapsed {
+            max-height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(transparent, rgba(255, 255, 255, 0.95));
+            pointer-events: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin: 30px 35px;
+            color: #8B9A8C;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #7A8A7D;
+            text-decoration: underline;
+            transform: translateX(-8px);
+        }
+
+        .loading {
+            text-align: center;
+            color: #8B6F47;
+            padding: 60px 40px;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #F5F0E8 0%, #EDE7DC 100%);
+            border-radius: 20px;
+            border: 2px solid rgba(184, 160, 130, 0.2);
+        }
+
+        .loading::before {
+            content: '📚';
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 15px;
+            animation: bookSway 2s ease-in-out infinite;
+        }
+
+        @keyframes bookSway {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+
+            .header {
+                padding: 35px 25px 25px;
+            }
+
+            .date-title {
+                font-size: 2.2rem;
+            }
+
+            .main-content {
+                padding: 30px 25px;
+            }
+
+            .summary-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .word-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .word-item {
+                padding: 20px;
+            }
+
+            .back-link {
+                margin: 25px;
+            }
+        }
+
+        /* 入场动画 */
+        .group-section {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideInUp 0.8s ease forwards;
+        }
+
+        .group-section:nth-child(1) { animation-delay: 0.1s; }
+        .group-section:nth-child(2) { animation-delay: 0.2s; }
+        .group-section:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="date-title" id="dateTitle">{{ date }}</h1>
+            <p>📚 学习记录详情</p>
+        </div>
+
+        <div class="main-content">
+            <div class="progress-info" id="progressInfo">
+                正在加载学习进度...
+            </div>
+
+            <div class="summary-stats" id="summaryStats">
+                <!-- 统计卡片将在这里生成 -->
+            </div>
+
+            <div id="groupsContainer">
+                <div class="loading">正在加载单词列表...</div>
+            </div>
+        </div>
+
+        <a href="/history" class="back-link">← 返回历史记录列表</a>
+    </div>
+    
+    <script>
+        const currentDate = '{{ date }}';
+        
+        async function loadHistoryDetail() {
+            try {
+                const response = await fetch(`/api/history/${currentDate}`);
+                const data = await response.json();
+                
+                // 更新页面标题
+                const dateObj = new Date(data.date);
+                const formattedDate = dateObj.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
+                document.getElementById('dateTitle').textContent = formattedDate;
+                
+                // 显示进度信息
+                updateProgressInfo(data.progress);
+                
+                // 显示统计信息
+                updateSummaryStats(data);
+                
+                // 显示单词组
+                displayWordGroups(data.groups);
+                
+            } catch (error) {
+                console.error('加载历史详情失败:', error);
+                document.getElementById('groupsContainer').innerHTML = 
+                    '<div class="loading">加载失败，请刷新重试</div>';
+            }
+        }
+        
+        function updateProgressInfo(progress) {
+            let progressHtml = '';
+            if (progress) {
+                const completedStages = progress.completed_stages || [];
+                progressHtml = `
+                    <strong>学习进度：</strong><br>
+                    当前阶段：${progress.current_stage || '未开始'}<br>
+                    已完成阶段：${completedStages.length > 0 ? completedStages.join(', ') : '无'}
+                `;
+            } else {
+                progressHtml = '<strong>学习进度：</strong>尚未开始学习';
+            }
+            document.getElementById('progressInfo').innerHTML = progressHtml;
+        }
+        
+        function updateSummaryStats(data) {
+            const group1Count = data.groups.group_1?.length || 0;
+            const group2Count = data.groups.group_2?.length || 0;
+            const group3Count = data.groups.group_3?.length || 0;
+            
+            const statsHtml = `
+                <div class="stat-card">
+                    <div class="stat-number">${data.total_words}</div>
+                    <div class="stat-label">总单词数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${group1Count}</div>
+                    <div class="stat-label">第一组</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${group2Count}</div>
+                    <div class="stat-label">第二组</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${group3Count}</div>
+                    <div class="stat-label">第三组</div>
+                </div>
+            `;
+            document.getElementById('summaryStats').innerHTML = statsHtml;
+        }
+        
+        function displayWordGroups(groups) {
+            let groupsHtml = '';
+            
+            for (let i = 1; i <= 3; i++) {
+                const groupKey = `group_${i}`;
+                const words = groups[groupKey] || [];
+                
+                if (words.length > 0) {
+                    const wordsHtml = words.map(word => `
+                        <div class="word-item">
+                            <div class="word-text">${word.word}</div>
+                            ${word.phonetic ? `<div class="phonetic">/${word.phonetic}/</div>` : ''}
+                            <div class="translation">${word.translation}</div>
+                            ${word.example_sentence ? `<div class="example"><strong>例句：</strong>${word.example_sentence}</div>` : ''}
+                        </div>
+                    `).join('');
+                    
+                    const isLongList = words.length > 6;
+                    
+                    groupsHtml += `
+                        <div class="group-section">
+                            <div class="group-header">
+                                第${i}组单词 (${words.length}个)
+                            </div>
+                            <div class="words-container">
+                                ${isLongList ? '<button class="expand-btn" onclick="toggleExpand(this)">展开全部</button>' : ''}
+                                <div class="word-grid ${isLongList ? 'collapsed' : ''}">
+                                    ${wordsHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('groupsContainer').innerHTML = groupsHtml;
+        }
+        
+        function toggleExpand(button) {
+            const wordGrid = button.nextElementSibling;
+            if (wordGrid.classList.contains('collapsed')) {
+                wordGrid.classList.remove('collapsed');
+                button.textContent = '收起';
+            } else {
+                wordGrid.classList.add('collapsed');
+                button.textContent = '展开全部';
+            }
+        }
+        
+        // 页面加载时获取详情
+        loadHistoryDetail();
+    </script>
+</body>
+</html>

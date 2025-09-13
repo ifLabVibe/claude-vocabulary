@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 个人定制化单词学习软件</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #B8A082 0%, #8B9A8C 50%, #A8B5C4 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 背景动画粒子 */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #B8A082 0%, #8B9A8C 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            opacity: 0.1;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .main-content {
+            padding: 40px 30px;
+        }
+        
+        .status {
+            background: linear-gradient(135deg, #F5F0E8 0%, #EDE7DC 100%);
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(184, 160, 130, 0.2);
+            box-shadow: 0 8px 25px rgba(184, 160, 130, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status::before {
+            content: '📊';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 4rem;
+            opacity: 0.1;
+        }
+        
+        .status-title {
+            font-weight: 600;
+            color: #8B6F47;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .status-text {
+            color: #8B6F47;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .entrances-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .entrance {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid transparent;
+            border-radius: 20px;
+            padding: 30px 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .entrance::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .entrance:hover::before {
+            left: 100%;
+        }
+        
+        .entrance:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .entrance.auto {
+            border-image: linear-gradient(135deg, #8B9A8C, #7A8A7D) 1;
+        }
+        
+        .entrance.manual {
+            border-image: linear-gradient(135deg, #A8B5C4, #9AACB8) 1;
+        }
+        
+        .entrance.review {
+            border-image: linear-gradient(135deg, #D4C4A8, #C2B59A) 1;
+        }
+        
+        .entrance.history {
+            border-image: linear-gradient(135deg, #B8A082, #A08B6F) 1;
+        }
+        
+        .entrance.management {
+            border-image: linear-gradient(135deg, #8B9A8C, #7A8A7D) 1;
+        }
+        
+        .entrance.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            filter: grayscale(0.5);
+        }
+        
+        .entrance.disabled:hover {
+            transform: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .entrance-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .entrance-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .entrance-description {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .entrance.auto .entrance-icon { color: #8B9A8C; }
+        .entrance.manual .entrance-icon { color: #A8B5C4; }
+        .entrance.review .entrance-icon { color: #D4C4A8; }
+        .entrance.history .entrance-icon { color: #B8A082; }
+        .entrance.management .entrance-icon { color: #8B9A8C; }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 30px 20px;
+            }
+            
+            .entrances-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .entrance {
+                padding: 25px 20px;
+            }
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #B8A082;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🌟 个人定制化单词学习</h1>
+            <p class="subtitle">基于艾宾浩斯遗忘曲线的智能学习系统</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="status">
+                <div class="status-title">📈 今日学习状态</div>
+                <div class="status-text" id="statusText">检查中<span class="loading"></span></div>
+            </div>
+            
+            <div class="entrances-grid">
+                <div class="entrance auto" onclick="startAutoLearning()">
+                    <span class="entrance-icon">🚀</span>
+                    <div class="entrance-title">智能自动学习</div>
+                    <div class="entrance-description">按照科学设计的流程自动进行<br>第1组3轮→第2组3轮→交叉复习→第3组3轮→交叉复习</div>
+                </div>
+                
+                <div class="entrance manual" onclick="startTodayLearning()">
+                    <span class="entrance-icon">🎯</span>
+                    <div class="entrance-title">自由选择学习</div>
+                    <div class="entrance-description">灵活选择组别和维度<br>认读、拼写任您选择</div>
+                </div>
+                
+                <div class="entrance review" id="reviewEntrance" onclick="startReview()">
+                    <span class="entrance-icon">🔄</span>
+                    <div class="entrance-title">今日旧词复习</div>
+                    <div class="entrance-description" id="reviewStatus">基于艾宾浩斯遗忘曲线<br>智能安排复习时间</div>
+                </div>
+                
+                <div class="entrance history" onclick="viewHistory()">
+                    <span class="entrance-icon">📚</span>
+                    <div class="entrance-title">学习历程回顾</div>
+                    <div class="entrance-description">查看历史学习记录<br>追踪学习进度</div>
+                </div>
+                
+                <div class="entrance management" onclick="manageWords()">
+                    <span class="entrance-icon">⚙️</span>
+                    <div class="entrance-title">单词管理</div>
+                    <div class="entrance-description">搜索单词·添加到今日学习<br>手动录入新词汇</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 创建背景粒子
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 15;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        async function checkTodayStatus() {
+            try {
+                const response = await fetch('/api/today_status');
+                const data = await response.json();
+                
+                document.getElementById('statusText').innerHTML = data.message;
+                
+                // 获取学习进度
+                const progressResponse = await fetch('/api/learning_progress');
+                const progressData = await progressResponse.json();
+                
+                if (progressData.stage_description) {
+                    document.getElementById('statusText').innerHTML = 
+                        `<strong>当前进度:</strong> ${progressData.stage_description}`;
+                }
+                
+                // 检查复习单词数量
+                await checkReviewWords();
+                
+                // 根据状态更新界面
+                if (!data.initialized) {
+                    document.getElementById('statusText').innerHTML += '<br><em>点击"智能自动学习"开始今日学习！</em>';
+                }
+            } catch (error) {
+                console.error('检查状态失败:', error);
+                document.getElementById('statusText').innerHTML = '<span style="color: #f44336;">状态检查失败，请刷新重试</span>';
+            }
+        }
+        
+        async function checkReviewWords() {
+            try {
+                const response = await fetch('/api/review_words');
+                const reviewWords = await response.json();
+                
+                const reviewEntrance = document.getElementById('reviewEntrance');
+                const reviewStatus = document.getElementById('reviewStatus');
+                
+                if (reviewWords.length > 0) {
+                    reviewStatus.innerHTML = `<strong>今日需复习 ${reviewWords.length} 个单词</strong><br>点击开始复习`;
+                    reviewEntrance.style.borderImage = 'linear-gradient(135deg, #FF9800, #F57C00) 1';
+                } else {
+                    reviewStatus.innerHTML = '今日暂无需复习的单词<br>继续学习新单词吧！';
+                    reviewEntrance.classList.add('disabled');
+                }
+            } catch (error) {
+                console.error('检查复习单词失败:', error);
+                document.getElementById('reviewStatus').innerHTML = '复习功能暂不可用<br>请稍后再试';
+                document.getElementById('reviewEntrance').classList.add('disabled');
+            }
+        }
+        
+        function startAutoLearning() {
+            window.location.href = '/start_auto_learning';
+        }
+        
+        function startTodayLearning() {
+            window.location.href = '/today_learning';
+        }
+        
+        function startReview() {
+            const reviewEntrance = document.getElementById('reviewEntrance');
+            if (reviewEntrance.classList.contains('disabled')) {
+                return;
+            }
+            window.location.href = '/review';
+        }
+        
+        function viewHistory() {
+            window.location.href = '/history';
+        }
+        
+        function manageWords() {
+            window.location.href = '/word_management';
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            checkTodayStatus();
+        });
+    </script>
+</body>
+</html>

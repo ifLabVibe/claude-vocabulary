@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 学习历程回顾</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #A8B5C4 0%, #8B9A8C 50%, #B8A082 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* 莫兰蒂风格的背景纹理 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M50 50c13.8 0 25-11.2 25-25S63.8 0 50 0 25 11.2 25 25s11.2 25 25 25zm25 25c0-13.8-11.2-25-25-25s-25 11.2-25 25 11.2 25 25 25 25-11.2 25-25zM0 50c0-13.8 11.2-25 25-25s25 11.2 25 25-11.2 25-25 25S0 63.8 0 50z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: backgroundFloat 25s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes backgroundFloat {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(100px, 100px) rotate(360deg); }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 25px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #A8B5C4 0%, #8B9A8C 100%);
+            color: white;
+            padding: 45px 35px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.15) 0%, transparent 70%);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .main-content {
+            padding: 40px 35px;
+        }
+        
+        .stats-summary {
+            background: linear-gradient(135deg, #F5F0E8 0%, #EDE7DC 100%);
+            padding: 30px;
+            border-radius: 25px;
+            margin-bottom: 35px;
+            border: 1px solid rgba(184, 160, 130, 0.2);
+            box-shadow: 0 10px 30px rgba(184, 160, 130, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-summary::before {
+            content: '📊';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 6rem;
+            opacity: 0.08;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-weight: 800;
+            color: #8B6F47;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #8B6F47;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .date-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .date-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .date-list::-webkit-scrollbar-track {
+            background: rgba(168, 181, 196, 0.1);
+            border-radius: 10px;
+        }
+        
+        .date-list::-webkit-scrollbar-thumb {
+            background: rgba(168, 181, 196, 0.3);
+            border-radius: 10px;
+        }
+        
+        .date-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 181, 196, 0.5);
+        }
+        
+        .date-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+            border: 2px solid rgba(168, 181, 196, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .date-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 181, 196, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .date-item:hover::before {
+            left: 100%;
+        }
+        
+        .date-item:hover {
+            background: linear-gradient(135deg, rgba(168, 181, 196, 0.1) 0%, rgba(139, 154, 140, 0.1) 100%);
+            border-color: #8B9A8C;
+            transform: translateY(-8px) translateX(8px);
+            box-shadow: 0 20px 40px rgba(168, 181, 196, 0.2);
+        }
+        
+        .date-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #8B6F47;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .date-info {
+            color: #8B6F47;
+            font-size: 1rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
+        .date-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #8B9A8C 0%, #7A8A7D 100%);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .loading, .no-data {
+            text-align: center;
+            padding: 60px 30px;
+            color: #8B6F47;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #F5F0E8 0%, #EDE7DC 100%);
+            border-radius: 20px;
+            border: 2px solid rgba(184, 160, 130, 0.2);
+            margin: 30px 0;
+        }
+        
+        .loading {
+            background: linear-gradient(135deg, #E8F5E8 0%, #D4EDDA 100%);
+            border-color: rgba(139, 154, 140, 0.2);
+        }
+        
+        .no-data {
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+            border-color: rgba(255, 152, 0, 0.2);
+        }
+        
+        .loading::before {
+            content: '⏳';
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 15px;
+            animation: spin 2s linear infinite;
+        }
+        
+        .no-data::before {
+            content: '📝';
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin: 25px;
+            color: #8B9A8C;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: #7A8A7D;
+            text-decoration: underline;
+            transform: translateX(-8px);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            .header {
+                padding: 35px 25px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .main-content {
+                padding: 30px 25px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .date-item {
+                padding: 20px;
+                margin: 15px 0;
+            }
+            
+            .date-title {
+                font-size: 1.2rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .date-badge {
+                margin-left: 0;
+            }
+        }
+        
+        /* 进入动画 */
+        .date-item {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .date-item:nth-child(1) { animation-delay: 0.1s; }
+        .date-item:nth-child(2) { animation-delay: 0.2s; }
+        .date-item:nth-child(3) { animation-delay: 0.3s; }
+        .date-item:nth-child(4) { animation-delay: 0.4s; }
+        .date-item:nth-child(5) { animation-delay: 0.5s; }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 学习历程回顾</h1>
+            <p>追踪您的学习足迹，见证每一份进步</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="stats-summary">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalDays">-</span>
+                        <div class="stat-label">总学习天数</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalWords">-</span>
+                        <div class="stat-label">累计学词</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">3739</span>
+                        <div class="stat-label">词库总量</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="date-list" id="dateList">
+                <div class="loading">正在加载您的学习历史...</div>
+            </div>
+        </div>
+        
+        <a href="/" class="back-link">🏠 返回主页</a>
+    </div>
+    
+    <script>
+        async function loadHistoryDates() {
+            try {
+                const response = await fetch('/api/history_dates');
+                const dates = await response.json();
+                
+                if (dates.length === 0) {
+                    document.getElementById('dateList').innerHTML = 
+                        '<div class="no-data">还没有学习记录，快去开始学习吧！</div>';
+                    return;
+                }
+                
+                // 更新统计信息
+                document.getElementById('totalDays').textContent = dates.length;
+                document.getElementById('totalWords').textContent = dates.length * 60; // 假设每天60个单词
+                
+                // 生成日期列表
+                const dateListHtml = dates.map(dateItem => {
+                    const date = dateItem.date;
+                    const dateObj = new Date(date);
+                    const formattedDate = dateObj.toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    });
+                    
+                    const isToday = date === new Date().toISOString().split('T')[0];
+                    const badge = isToday ? '<span class="date-badge">今天</span>' : '';
+                    
+                    return `
+                        <div class="date-item" onclick="viewDateDetail('${date}')">
+                            <div class="date-title">
+                                ${formattedDate} ${badge}
+                            </div>
+                            <div class="date-info">
+                                📖 学习了60个新单词 • 点击查看详情
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                document.getElementById('dateList').innerHTML = dateListHtml;
+                
+            } catch (error) {
+                console.error('加载历史记录失败:', error);
+                document.getElementById('dateList').innerHTML = 
+                    '<div class="no-data">加载失败，请刷新重试</div>';
+            }
+        }
+        
+        function viewDateDetail(date) {
+            window.location.href = `/history/${date}`;
+        }
+        
+        // 页面加载时获取历史记录
+        loadHistoryDates();
+    </script>
+</body>
+</html>
